@@ -82,32 +82,32 @@ services:
     restart: unless-stopped
 
 #the open id is not working wtffff , 4days on failure no wayyyy    
-#  soa_apache:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile.apache
-#    container_name: soa_apache
-#    ports:
-#     - "443:443"
-#    depends_on:
-#     - soa_backend
-#      - soa_keycloak
-   # restart: unless-stopped
-
-  nginx:
-    build : ./nginx-configs
-    container_name: nginx
-    depends_on:
-      - soa_backend
-      - soa_keycloak
+  soa_apache:
+    build:
+      context: .
+      dockerfile: Dockerfile.apache
+    container_name: soa_apache
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx-configs/default.conf:/etc/nginx.conf:ro
-      - ./certs/birder.epita.fr.crt:/etc/nginx/ssl/server.crt:ro
-      - ./certs/birder.epita.fr.key:/etc/nginx/ssl/server.key:ro
-    restart: always
+     - "443:443"
+    depends_on:
+     - soa_backend
+     - soa_keycloak
+    restart: unless-stopped
+
+#  nginx:
+#    build : ./nginx-configs
+#    container_name: nginx
+#    depends_on:
+#      - soa_backend
+#      - soa_keycloak
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - ./nginx-configs/default.conf:/etc/nginx.conf:ro
+#      - ./certs/birder.epita.fr.crt:/etc/nginx/ssl/server.crt:ro
+#      - ./certs/birder.epita.fr.key:/etc/nginx/ssl/server.key:ro
+#    restart: always
 
 volumes:
   pgdata:
