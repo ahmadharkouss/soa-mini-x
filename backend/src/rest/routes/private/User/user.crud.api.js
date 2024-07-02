@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createUser, getUsers, getUserById, updateUserById, deleteUserById } = require('../../../services/User/user.crud.service');
+const { createUser, getUsers, getUserById, updateUserById, deleteUserById } = require('../../../../services/User/user.crud.service');
 
 // Middleware that is specific to this router
 const timeLog = (req, res, next) => {

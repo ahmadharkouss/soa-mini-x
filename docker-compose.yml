@@ -7,16 +7,16 @@ services:
     ports:
       - "4000:4000"
     depends_on:
-      - db
+      - soa_postgres_db
     environment:
-      - DB_HOST=db
+      - DB_HOST=soa_postgres_db
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=example
       - DB_NAME=mydatabase
     restart: always
 
-  db:
+  soa_postgres_db:
     image: postgres:16
     container_name: soa_postgres_db
     ports:
@@ -28,7 +28,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  redis:
+  soa_redis:
     image: "redis:alpine"
     container_name: soa_redis
     command: redis-server
@@ -38,7 +38,7 @@ services:
       - "6379"
     restart: unless-stopped
   
-  keycloak:
+  soa_keycloak:
     image: quay.io/keycloak/keycloak:25.0.1
     container_name: soa_keycloak
     ports:
@@ -48,7 +48,7 @@ services:
       KC_HOSTNAME_PORT: 8080
       # Database configuration
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak-db/keycloak
+      KC_DB_URL: jdbc:postgresql://soa_keycloak_db/keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak  
       # Keycloak configuration
@@ -59,12 +59,12 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     depends_on:
-      - keycloak-db
+       -  soa_keycloak_db
     command:
        - 'start-dev'
     restart: unless-stopped
 
-  keycloak-db:
+  soa_keycloak_db:
   # Do not expose this container port to the outside world for security reasons
     image: postgres:16
     container_name: soa_keycloak_db
@@ -77,7 +77,7 @@ services:
     restart: unless-stopped
 
   
-  apache:
+  soa_apache:
     build:
       context: .
       dockerfile: Dockerfile.apache
@@ -86,7 +86,7 @@ services:
       - "443:443"
     depends_on:
       - soa_backend
-      - keycloak
+      - soa_keycloak
    # restart: unless-stopped
 
 volumes:

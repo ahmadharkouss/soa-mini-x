@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Mini Twitter Web Api',});
+  res.render('private_index', { title: 'Mini Twitter Private Web Api', });
 });
 
 module.exports = router;
