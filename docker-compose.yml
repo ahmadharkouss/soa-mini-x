@@ -38,15 +38,16 @@ services:
     restart: unless-stopped
   
   soa_keycloak:
-    image: quay.io/keycloak/keycloak:24.0.0
+    image: quay.io/keycloak/keycloak:25.0.1
     container_name: soa_keycloak
     ports:
       - "8080:8080"
     command: 
       - start-dev
-      - --proxy-headers=xforwarded
-      - --hostname-strict=false
-      - --hostname-strict-https=false
+     # - --hostname-strict=false
+     # - --hostname-strict-https=false
+      #- --hostname-path=/auth
+      - --hostname=https://localhost/auth
     environment:
       KC_HOSTNAME: localhost # to be accessed from the host machine
       KC_HOSTNAME_PORT: 8080
