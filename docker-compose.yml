@@ -86,7 +86,7 @@ services:
   soa_apache:
     build:
       context: .
-      dockerfile: Dockerfile.apache
+      dockerfile: Dockerfile.apache.ext
     container_name: soa_apache
     ports:
      - "443:443"
