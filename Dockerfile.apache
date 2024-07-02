@@ -1,0 +1,15 @@
+# Use official Apache image
+FROM httpd:2.4
+
+
+# Copy configuration files
+COPY ./apache-config/my-httpd.conf /usr/local/apache2/conf/httpd.conf
+COPY ./apache-config/my-ssl.conf /usr/local/apache2/conf/extra/httpd-ssl.conf
+
+
+# Copy SSL certificates
+COPY ./certs/birder.epita.fr.crt /usr/local/apache2/conf/server.crt
+COPY ./certs/birder.epita.fr.key /usr/local/apache2/conf/server.key
+
+# Copy .htpasswd file for basic authentication
+COPY ./apache-config/.htpasswd /usr/local/apache2/conf/.htpasswd

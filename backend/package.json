@@ -1,0 +1,31 @@
+{
+  "name": "soa-mini-twitter",
+  "version": "1.0.0",
+  "description": "web api for mini-twitter",
+  "private": true,
+  "scripts": {
+    "start": "node ./src/rest/bin/www",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.cri.epita.fr/ahmad.harkous/soa-mini-twitter.git"
+  },
+  "author": "ahmad-harkous",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "^4.19.2",
+    "express-generator": "^4.2.0",
+    "http-errors": "~1.6.3",
+    "jade": "^0.29.0",
+    "morgan": "~1.9.1",
+    "pg": "^8.11.5",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.3",
+    "sqlite3": "^5.1.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
