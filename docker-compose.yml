@@ -58,6 +58,8 @@ services:
       # Admin user configuration
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      # proxy mode
+      PROXY_ADDRESS_FORWARDING: true 
     depends_on:
        -  soa_keycloak_db
     command:
