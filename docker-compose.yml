@@ -38,10 +38,15 @@ services:
     restart: unless-stopped
   
   soa_keycloak:
-    image: quay.io/keycloak/keycloak:25.0.1
+    image: quay.io/keycloak/keycloak:24.0.0
     container_name: soa_keycloak
     ports:
       - "8080:8080"
+    command: 
+      - start-dev
+      - --proxy-headers=xforwarded
+      - --hostname-strict=false
+      - --hostname-strict-https=false
     environment:
       KC_HOSTNAME: localhost # to be accessed from the host machine
       KC_HOSTNAME_PORT: 8080
@@ -59,10 +64,9 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin
       # proxy mode
       PROXY_ADDRESS_FORWARDING: true 
+      KC_PROXY: edge
     depends_on:
        -  soa_keycloak_db
-    command:
-       - 'start-dev'
     restart: unless-stopped
 
   soa_keycloak_db:
@@ -77,18 +81,33 @@ services:
       - keycloak_pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
-  
-  soa_apache:
-    build:
-      context: .
-      dockerfile: Dockerfile.apache
-    container_name: soa_apache
-    ports:
-      - "443:443"
+#the open id is not working wtffff , 4days on failure no wayyyy    
+#  soa_apache:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.apache
+#    container_name: soa_apache
+#    ports:
+#     - "443:443"
+#    depends_on:
+#     - soa_backend
+#      - soa_keycloak
+   # restart: unless-stopped
+
+  nginx:
+    build : ./nginx-configs
+    container_name: nginx
     depends_on:
       - soa_backend
       - soa_keycloak
-   # restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-configs/default.conf:/etc/nginx.conf:ro
+      - ./certs/birder.epita.fr.crt:/etc/nginx/ssl/server.crt:ro
+      - ./certs/birder.epita.fr.key:/etc/nginx/ssl/server.key:ro
+    restart: always
 
 volumes:
   pgdata:
