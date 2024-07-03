@@ -72,17 +72,17 @@ services:
 
   soa_keycloak_db:
   # Do not expose this container port to the outside world for security reasons
-    image: postgres:16
+    image: postgres:16 
     container_name: soa_keycloak_db
     environment:
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: keycloak
       POSTGRES_DB: keycloak
     volumes:
-      - keycloak_pgdata:/var/lib/postgresql/data
+      - ./keycloakdb/data:/var/lib/postgresql/data
     restart: unless-stopped
 
-#the open id is not working wtffff , 4days on failure no wayyyy    
+
   soa_apache:
     build:
       context: .
@@ -112,4 +112,3 @@ services:
 
 volumes:
   pgdata:
-  keycloak_pgdata:
