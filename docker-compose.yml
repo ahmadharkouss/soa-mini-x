@@ -72,14 +72,17 @@ services:
 
   soa_keycloak_db:
   # Do not expose this container port to the outside world for security reasons
-    image: postgres:16 
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
     container_name: soa_keycloak_db
     environment:
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: keycloak
       POSTGRES_DB: keycloak
     volumes:
-      - ./keycloakdb/data:/var/lib/postgresql/data
+        - ./keycloak_backup:/docker-entrypoint-initdb.d
+ 
     restart: unless-stopped
 
 
