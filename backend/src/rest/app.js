@@ -8,12 +8,18 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 
-var usersRouter = require('./routes/private/User/user.crud.api');
-var indexRouter = require('./routes/index');
-var publicRouter = require('./routes/public/hello');
 
+var indexRouter = require('./routes/index');
 var publicIndexRouter = require('./routes/public/index');
 var privateIndexRouter = require('./routes/private/index');
+
+
+
+var privateUsersRouter = require('./routes/private/User/user.crud.api');
+var publicRouter = require('./routes/public/hello');
+var privateTicketRouter = require('./routes/private/Ticket/ticket.crud.api');
+var privateRoomRouter = require('./routes/private/Room/room.crud.api');
+
 
 var app = express();
 
@@ -32,8 +38,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/public', publicIndexRouter);
 app.use('/private', privateIndexRouter);
-app.use('/private/users', usersRouter);
+
 app.use('/public/hello', publicRouter);
+
+
+app.use('/private/users', privateUsersRouter);
+app.use('/private/tickets', privateTicketRouter);
+app.use('/private/rooms',  privateRoomRouter);
 
 
 const swaggerUi = require('swagger-ui-express');
@@ -62,7 +73,10 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ['./src/rest/routes/private/User/user.crud.api.js'], // Path to the API docs
+  apis: ['./src/rest/routes/private/User/user.crud.api.js',
+    './src/rest/routes/private/Ticket/ticket.crud.api.js',
+    './src/rest/routes/private/Room/room.crud.api.js'
+  ], // Path to the API docs
 };
 
 const swaggerOptions2 = {

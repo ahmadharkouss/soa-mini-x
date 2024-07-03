@@ -13,11 +13,6 @@ RUN npm install
 # Copy the rest of the application code to the working directory
 COPY . .
 
-# Copy the wait-for-it script to the working directory
-COPY wait-for-it.sh .
-
-# Make the wait-for-it script executable
-RUN chmod +x wait-for-it.sh
 
 # Install netcat-openbsd for the wait-for-it script
 #RUN apt-get update && apt-get install -y netcat-openbsd && apt-get clean
@@ -26,5 +21,5 @@ RUN chmod +x wait-for-it.sh
 EXPOSE 4000
 
 # Command to run the application with the DEBUG environment variable
-CMD ["./wait-for-it.sh", "db:5432", "--", "sh", "-c", "DEBUG=soa-mini-twitter:* npm start"]
+CMD [ "sh", "-c", "DEBUG=soa-mini-twitter:* npm start"]
 

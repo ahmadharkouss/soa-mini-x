@@ -1,6 +1,6 @@
 //room crud model service
 
-const { Room } = require('../../../models/Room-User/Room');
+const { Room } = require('../../models/Room-User/Room');
 
 //create a new room
 
