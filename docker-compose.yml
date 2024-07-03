@@ -92,7 +92,7 @@ services:
       dockerfile: Dockerfile.apache.ext
     container_name: soa_apache
     ports:
-     - "443:443"
+    - "443:443"
     depends_on:
      - soa_backend
      - soa_keycloak

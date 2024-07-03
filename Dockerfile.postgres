@@ -1,6 +1,9 @@
 FROM postgres:16
 
-COPY restore.sh /docker-entrypoint-initdb.d/restore.sh
-RUN chmod +x /docker-entrypoint-initdb.d/restore.sh
+# Copy the custom restore script into the container
+COPY restore.sh /usr/local/bin/restore.sh
+RUN chmod +x /usr/local/bin/restore.sh
 
-ENTRYPOINT ["/docker-entrypoint-initdb.d/restore.sh"]
+# Set the entrypoint to the custom script
+ENTRYPOINT ["/usr/local/bin/restore.sh"]
+
