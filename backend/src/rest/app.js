@@ -34,6 +34,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+
+
 // Import routes
 app.use('/', indexRouter);
 app.use('/public', publicIndexRouter);
@@ -70,6 +72,20 @@ const swaggerOptions = {
       {
         url: 'https://birder.epita.fr/private',
         description: 'Prod Private server',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
       },
     ],
   },

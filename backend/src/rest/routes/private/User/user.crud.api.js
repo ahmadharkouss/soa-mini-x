@@ -2,6 +2,27 @@ const express = require('express');
 const router = express.Router();
 const { createUser, getUsers, getUserById, updateUserById, deleteUserById } = require('../../../../services/User/user.crud.service');
 
+
+const session = require('express-session');
+const bodyParser = require('body-parser');
+const Keycloak = require('keycloak-connect');
+
+const memoryStore = new session.MemoryStore();
+
+const app = express();
+
+router.use(session({
+    secret: 'thisShouldBeLongAndSecret',
+    resave: false,
+    saveUninitialized: true,
+    store: memoryStore
+}));
+
+const keycloak = new Keycloak({ store: memoryStore }, './src/configs/keycloak-config.json');
+
+app.use(bodyParser.json());
+app.use(keycloak.middleware());
+
 // Middleware that is specific to this router
 const timeLog = (req, res, next) => {
     console.log('Time: ', Date.now());
@@ -9,9 +30,15 @@ const timeLog = (req, res, next) => {
 };
 router.use(timeLog);
 
+// Swagger definitions for Bearer token authentication
 /**
  * @swagger
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     User:
  *       type: object
@@ -47,6 +74,8 @@ router.use(timeLog);
  *   post:
  *     summary: Create a new user
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -63,7 +92,7 @@ router.use(timeLog);
  *       500:
  *         description: Some server error
  */
-router.post('/', async (req, res, next) => {
+router.post('/', keycloak.protect(), async (req, res, next) => {
     const { name, alias } = req.body;
     try {
         if (!name || !alias) {
@@ -86,6 +115,8 @@ router.post('/', async (req, res, next) => {
  *   get:
  *     summary: Returns the list of all the users
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: The list of the users
@@ -96,7 +127,7 @@ router.post('/', async (req, res, next) => {
  *               items:
  *                 $ref: '#/components/schemas/User'
  */
-router.get('/', async (req, res) => {
+router.get('/', keycloak.protect(), async (req, res) => {
     const users = await getUsers();
     res.json(users);
 });
@@ -107,6 +138,8 @@ router.get('/', async (req, res) => {
  *   get:
  *     summary: Get the user by id
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -124,10 +157,14 @@ router.get('/', async (req, res) => {
  *       404:
  *         description: The user was not found
  */
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', keycloak.protect(), async (req, res, next) => {
     const { id } = req.params;
-    const user = await getUserById(id);
-    res.json(user);
+    try {
+        const user = await getUserById(id);
+        res.json(user);
+    } catch (error) {
+        next(error);  // Pass the error to the error handling middleware
+    }
 });
 
 /**
@@ -136,6 +173,8 @@ router.get('/:id', async (req, res, next) => {
  *   put:
  *     summary: Update the user by the id
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -161,7 +200,7 @@ router.get('/:id', async (req, res, next) => {
  *       500:
  *         description: Some error happened
  */
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', keycloak.protect(), async (req, res, next) => {
     const { id } = req.params;
     const { name, alias } = req.body;
     try {
@@ -178,6 +217,8 @@ router.put('/:id', async (req, res, next) => {
  *   delete:
  *     summary: Remove the user by id
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -191,7 +232,7 @@ router.put('/:id', async (req, res, next) => {
  *       404:
  *         description: The user was not found
  */
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', keycloak.protect(), async (req, res, next) => {
     const { id } = req.params;
     try {
         await deleteUserById(id);

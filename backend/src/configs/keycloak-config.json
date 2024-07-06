@@ -1,0 +1,14 @@
+{
+  "realm": "apache-realm",
+  "auth-server-url": "https://localhost/auth",
+  "ssl-required": "external",
+  "resource": "apache",
+  "verify-token-audience": true,
+  "credentials": {
+    "secret": "bcqBySiZnGr4rGC5DB3kwG42PebikgLJ"
+  },
+  "confidential-port": 0,
+  "policy-enforcer": {
+    "credentials": {}
+  }
+}
