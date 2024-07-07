@@ -134,13 +134,13 @@ router.post('/leave', async (req, res, next) => {
  *         name: roomId
  *         required: true
  *         schema:
- *           type: string
+ *           type: integer
  *         description: The ID of the room
  *       - in: path
  *         name: userId
  *         required: true
  *         schema:
- *           type: string
+ *           type: integer
  *         description: The ID of the user
  *     responses:
  *       200:

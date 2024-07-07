@@ -174,7 +174,7 @@ router.post('/assign-role', async (req, res, next) => {
  *       - in: path
  *         name: roomId
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: The id of the room
  *     requestBody:
@@ -185,13 +185,13 @@ router.post('/assign-role', async (req, res, next) => {
  *             type: object
  *             properties:
  *               userId:
- *                 type: string
+ *                 type: integer
  *                 description: The id of the user making the request
  *               name:
  *                 type: string
  *                 description: The new name for the room
  *             example:
- *               userId: 12345
+ *               userId: 1
  *               name: New Room Name
  *     responses:
  *       200:
@@ -202,7 +202,7 @@ router.post('/assign-role', async (req, res, next) => {
  *               type: object
  *               properties:
  *                 id:
- *                   type: string
+ *                   type: integer
  *                   description: The id of the room
  *                 name:
  *                   type: string
@@ -261,13 +261,13 @@ router.put('/:roomId/update', async (req, res, next) => {
  *         name: roomId
  *         required: true
  *         schema:
- *           type: string
+ *           type: integer
  *         description: The id of the room to be deleted
  *       - in: path
  *         name: userId
  *         required: true
  *         schema:
- *           type: string
+ *           type: integer
  *         description: The id of the admin user attempting to delete the room
  *     responses:
  *       200:

@@ -141,7 +141,7 @@ router.get('/', async (req, res) => {
  *       - in: path
  *         name: id
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: The user id
  *     responses:
@@ -182,7 +182,7 @@ router.get('/:id', async (req, res, next) => {
  *       - in: path
  *         name: id
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: The user id
  *     requestBody:
@@ -231,7 +231,7 @@ router.put('/:id', async (req, res, next) => {
  *       - in: path
  *         name: id
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: The user id
  *     responses:

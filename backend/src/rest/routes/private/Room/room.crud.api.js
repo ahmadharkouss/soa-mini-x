@@ -32,7 +32,7 @@ router.use(timeLog);
  *         - name
  *       properties:
  *         id:
- *           type: string
+ *           type: integer
  *           description: The auto-generated id of the room
  *         name:
  *           type: string
@@ -58,11 +58,11 @@ router.use(timeLog);
  *           type: string
  *           description: The name of the room
  *         createdBy:
- *           type: string
+ *           type: integer
  *           description: The ID of the user who creates the room and will be assigned as admin
  *       example:
  *         name: Conference Room
- *         createdBy: "1"
+ *         createdBy: 1
  */
 
 /**
@@ -141,7 +141,7 @@ router.get('/', async (req, res) => {
  *       - in: path
  *         name: id
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: The room id
  *     responses:
@@ -182,7 +182,7 @@ router.get('/:id', async (req, res, next) => {
  *         - role
  *       properties:
  *         userId:
- *           type: string
+ *           type: integer
  *           description: The unique identifier of the user
  *         userName:
  *           type: string
@@ -191,7 +191,7 @@ router.get('/:id', async (req, res, next) => {
  *           type: string
  *           description: The role of the user in the room
  *       example:
- *         userId: '12345'
+ *         userId: 1
  *         userName: 'John Doe'
  *         role: 'admin'
  *
@@ -204,7 +204,7 @@ router.get('/:id', async (req, res, next) => {
  *         name: roomId
  *         required: true
  *         schema:
- *           type: string
+ *           type: integer
  *         description: The ID of the room for which to fetch users
  *     responses:
  *       200:
