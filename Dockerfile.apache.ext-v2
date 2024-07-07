@@ -1,5 +1,5 @@
 # Base image
-FROM httpd:2.4.41@sha256:946c54069130dbf136903fe658fe7d113bd8db8004de31282e20b262a3e106fb
+FROM httpd:2.4
 
 # Copy configuration files
 COPY ./apache-config/my-httpd.conf /usr/local/apache2/conf/httpd.conf
@@ -14,33 +14,20 @@ COPY ./certs/options-ssl-apache.conf /usr/local/apache2/conf/options-ssl-apache.
 COPY ./apache-config/.htpasswd /usr/local/apache2/conf/.htpasswd
 
 # Copy OpenID Connect module package
-COPY ./libapache2-mod-auth-openidc_2.4.15.7-1.buster_amd64.deb /tmp/mod_auth_openidc.deb
+#COPY ./libapache2-mod-auth-openidc_2.4.15.7-1.buster_amd64.deb /tmp/mod_auth_openidc.deb
 
-# Define environment variables
-ENV CJOSE_VERSION 0.6.1.5
-ENV CJOSE_DEB_URL https://github.com/zmartzone/mod_auth_openidc/releases/download/v2.4.0/libcjose0_${CJOSE_VERSION}-1.buster+1_amd64.deb
-ENV CJOSE_DEB_SHA1 d6ca5569bed04a1450e054b3280702f1edfe2ae7
+
 
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install dependencies and OpenID module
 RUN depsRuntime=" \
-    libcurl4 ca-certificates wget \
-    libpcre3 \
-    libjansson4 \
-    apache2-bin \
-    libhiredis0.14 \
+    libapache2-mod-auth-openidc \
   " \
   && set -x \
   && apt-get update \
   && apt-get install -y --no-install-recommends $depsRuntime \
   && rm -r /var/lib/apt/lists/* \
-  && wget -q "$CJOSE_DEB_URL" -O /tmp/libcjose.deb \
-  && echo "$CJOSE_DEB_SHA1 /tmp/libcjose.deb" | sha1sum -c - \
-  && dpkg -i /tmp/libcjose.deb \
-  && rm /tmp/libcjose.deb \
-  && dpkg -i /tmp/mod_auth_openidc.deb \
-  && rm /tmp/mod_auth_openidc.deb \
   && ln -s /usr/lib/apache2/modules/mod_auth_openidc.so /usr/local/apache2/modules/mod_auth_openidc.so \
   && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt
 

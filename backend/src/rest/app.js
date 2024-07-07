@@ -34,8 +34,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-
-
 // Import routes
 app.use('/', indexRouter);
 app.use('/public', publicIndexRouter);
@@ -62,19 +60,11 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'https://localhost/private',
-        description: 'Prod LocalTest Private server',
-      },
-      {
-        url: 'http://localhost:4000/private',
-        description: 'Dev Local Private server',
-      },
-      {
-        url: 'https://birder.epita.fr/private',
+        url: 'https://x.devgains.com/private',
         description: 'Prod Private server',
       },
     ],
-    components: {
+   components: {
       securitySchemes: {
         bearerAuth: {
           type: 'http',
@@ -87,7 +77,7 @@ const swaggerOptions = {
       {
         bearerAuth: [],
       },
-    ],
+    ],	  
   },
   apis: ['./src/rest/routes/private/User/user.crud.api.js',
     './src/rest/routes/private/Ticket/ticket.crud.api.js',
@@ -105,15 +95,7 @@ const swaggerOptions2 = {
     },
     servers: [
       {
-        url: 'https://localhost/public',
-        description: 'Prod LocalTest Public server',
-      },
-      {
-        url: 'http://localhost:4000/public',
-        description: 'Dev Local Public server',
-      },
-      {
-        url: 'https://birder.epita.fr/public',
+        url: 'https://x.devgains.com/public',
         description: 'Prod Public server',
       },
     ],
@@ -133,8 +115,8 @@ const swaggerSpec2 = swaggerJsdoc(swaggerOptions2);
 // Separate middleware instances
 const privateSwaggerMiddleware = swaggerUi.setup(swaggerSpec);
 const publicSwaggerMiddleware = swaggerUi.setup(swaggerSpec2);
-
-app.use('/private/api-docs', swaggerUi.serveFiles(swaggerSpec), privateSwaggerMiddleware);
+app.set('trust proxy', true);
+app.use('/private/api-docs2', swaggerUi.serveFiles(swaggerSpec), privateSwaggerMiddleware);
 app.use('/public/api-docs', swaggerUi.serveFiles(swaggerSpec2), publicSwaggerMiddleware);
 // catch 404 and forward to error handler
 /*

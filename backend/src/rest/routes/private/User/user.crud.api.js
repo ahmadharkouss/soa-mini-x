@@ -9,7 +9,6 @@ const Keycloak = require('keycloak-connect');
 
 const memoryStore = new session.MemoryStore();
 
-const app = express();
 
 router.use(session({
     secret: 'thisShouldBeLongAndSecret',
@@ -20,8 +19,8 @@ router.use(session({
 
 const keycloak = new Keycloak({ store: memoryStore }, './src/configs/keycloak-config.json');
 
-app.use(bodyParser.json());
-app.use(keycloak.middleware());
+router.use(bodyParser.json());
+router.use(keycloak.middleware());
 
 // Middleware that is specific to this router
 const timeLog = (req, res, next) => {

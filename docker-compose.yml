@@ -3,7 +3,7 @@ services:
     build: ./backend
     container_name: soa_backend
     ports:
-      - "4000:4000"
+      - "5000:5000"
     depends_on:
       - soa_postgres_db
     environment:
@@ -38,16 +38,20 @@ services:
     restart: unless-stopped
   
   soa_keycloak:
-    image: quay.io/keycloak/keycloak:25.0.1
+    image: quay.io/keycloak/keycloak
     container_name: soa_keycloak
     ports:
       - "8080:8080"
     command: 
       - start-dev
-     # - --hostname-strict=false
-     # - --hostname-strict-https=false
+      - --hostname=https://x.devgains.com/auth
+      - --proxy=edge
       #- --hostname-path=/auth
-      - --hostname=https://localhost/auth
+      - --proxy-headers=xforwarded
+      - --hostname-strict=false
+      #- --optimized
+      - --verbose
+
     environment:
       KC_HOSTNAME: localhost # to be accessed from the host machine
       KC_HOSTNAME_PORT: 8080
@@ -64,11 +68,12 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       # proxy mode
-      PROXY_ADDRESS_FORWARDING: true 
-      KC_PROXY: edge
+      #PROXY_ADDRESS_FORWARDING: true 
+      #KC_PROXY: edge
     depends_on:
        -  soa_keycloak_db
     restart: unless-stopped
+
 
   soa_keycloak_db:
   # Do not expose this container port to the outside world for security reasons
