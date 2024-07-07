@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { createTicket, getTickets, getTicketById, updateTicketById, deleteTicketById } = require('../../../../services/Ticket/ticket.crud.service');
-
+const { createTicket, getTickets, getTicketById, updateTicketById, deleteTicketById, editTicketContent,  replyTicket,
+    ticketEditsHistory 
+ } = require('../../../../services/Ticket/ticket.crud.service');
+const {getUserById} = require('../../../../services/User/user.crud.service');
+const {getRoomById} = require('../../../../services/Room/room.crud.service');
 // Middleware that is specific to this router
 const timeLog = (req, res, next) => {
     console.log('Time: ', Date.now());
@@ -20,14 +23,49 @@ router.use(timeLog);
  *         - subject
  *         - content
  *         - isEdited
- *         - parentTicket
  *         - createdBy
  *       properties:
- *         id:
- *           type: string
- *           description: The auto-generated id of the ticket
  *         roomId:
+ *           type: integer
+ *           description: The id of the room associated with the ticket
+ *         subject:
  *           type: string
+ *           description: The subject of the ticket
+ *         content:
+ *           type: integer
+ *           description: The content of the ticket
+ *         isEdited:
+ *           type: boolean
+ *           description: If the ticket has been edited
+ *         parentTicket:
+ *           type: integer
+ *           description: The id of the parent ticket if any
+ *         createdBy:
+ *           type: integer
+ *           description: The id of the user who created the ticket
+ *       example:
+ *         roomId: 12345
+ *         subject: Issue with projector
+ *         content: The projector in room 101 is not working.
+ *         isEdited: false
+ *         parentTicket: null
+ *         createdBy: 1
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Ticket2:
+ *       type: object
+ *       required:
+ *         - roomId
+ *         - subject
+ *         - content
+ *         - createdBy
+ *       properties:
+ *         roomId:
+ *           type: integer
  *           description: The id of the room associated with the ticket
  *         subject:
  *           type: string
@@ -35,23 +73,17 @@ router.use(timeLog);
  *         content:
  *           type: string
  *           description: The content of the ticket
- *         isEdited:
- *           type: boolean
- *           description: If the ticket has been edited
  *         parentTicket:
- *           type: string
+ *           type: integer
  *           description: The id of the parent ticket if any
  *         createdBy:
- *           type: string
+ *           type: integer
  *           description: The id of the user who created the ticket
  *       example:
- *         id: d5fE_asz
- *         roomId: 12345
+ *         roomId: 1
  *         subject: Issue with projector
  *         content: The projector in room 101 is not working.
- *         isEdited: false
- *         parentTicket: null
- *         createdBy: 67890
+ *         createdBy: 1
  */
 
 /**
@@ -60,6 +92,7 @@ router.use(timeLog);
  *   name: Tickets
  *   description: The ticket managing API
  */
+
 
 /**
  * @swagger
@@ -72,7 +105,7 @@ router.use(timeLog);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Ticket'
+ *             $ref: '#/components/schemas/Ticket2'
  *     responses:
  *       200:
  *         description: The ticket was successfully created
@@ -80,19 +113,35 @@ router.use(timeLog);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Ticket'
+ *       400:
+ *         description: Bad Request - Required fields are missing 
+ *       404:
+ *        description: Useror room not found
+ *       403:
+ *         description: User has not joined the room
  *       500:
  *         description: Some server error
  */
 router.post('/', async (req, res, next) => {
-    const { roomId, subject, content, isEdited, parentTicket, createdBy } = req.body;
+    const { roomId, subject, content, createdBy } = req.body;
     try {
         if (!roomId || !subject || !content || !createdBy) {
-            return res.status(404).json({ message: 'Required fields are missing' });
+            return res.status(400).json({ message: 'Required fields are missing' });
         }
-        const ticket = await createTicket(roomId, subject, content, isEdited, parentTicket, createdBy);
-        res.json(ticket);
+        const user = await getUserById(createdBy);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const room = await getRoomById(roomId);
+        if (!room) {
+            return res.status(404).json({ message: 'Room not found' });
+        }
+        const ticket = await createTicket(roomId, subject, content, createdBy);
+        const {updatedAt, ...ticketWithoutUpdatedAt} = ticket.toJSON ? ticket.toJSON() : ticket;
+        res.status(200).json(ticketWithoutUpdatedAt);
     } catch (error) {
-        next(error);
+           return res.status(403).json({ message: error.message });
+        
     }
 });
 
@@ -114,7 +163,7 @@ router.post('/', async (req, res, next) => {
  */
 router.get('/', async (req, res) => {
     const tickets = await getTickets();
-    res.json(tickets);
+    res.status(200).json(tickets);
 });
 
 /**
@@ -127,13 +176,13 @@ router.get('/', async (req, res) => {
  *       - in: path
  *         name: id
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: The ticket id
  *     responses:
  *        200:
  *          description: The ticket description by id
- *          contents:
+ *          content:
  *            application/json:
  *              schema:
  *                $ref: '#/components/schemas/Ticket'
@@ -142,25 +191,113 @@ router.get('/', async (req, res) => {
  */
 router.get('/:id', async (req, res, next) => {
     const { id } = req.params;
+    if (!id) {
+        return res.status(400).json({ message: 'Bad request, missing fields' });
+    }
     try {
         const ticket = await getTicketById(id);
-        res.json(ticket);
+        if (!ticket) {
+            return res.status(404).json({ message: 'Ticket not found' });
+        }
+        res.status(200).json(ticket);
     } catch (error) {
         next(error);
     }
 });
 
+
 /**
  * @swagger
- * /tickets/{id}:
+ * /tickets/{parentId}/reply:
+ *   post:
+ *     summary: Reply to a ticket
+ *     tags: [Tickets]
+ *     parameters:
+ *       - in: path
+ *         name: parentId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The id of the parent ticket
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               subject:
+ *                 type: string
+ *                 description: The subject of the reply
+ *               content:
+ *                 type: string
+ *                 description: The content of the reply
+ *               createdBy:
+ *                 type: integer
+ *                 description: The id of the user creating the reply
+ *             example:
+ *               subject: "Re: Issue with projector"
+ *               content: "The projector in room 101 has been fixed."
+ *               createdBy: 1
+ *     responses:
+ *       200:
+ *         description: The reply was successfully created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Ticket'
+ *       400:
+ *         description: Bad Request - Required fields are missing
+ *       404:
+ *         description: The user or  parent ticket was not found
+ *       403:
+ *         description: User has not joined the room
+ *       500:
+ *         description: Some server error
+ */
+
+
+router.post('/:parentId/reply', async (req, res, next) => {
+    const { parentId } = req.params
+    const { subject, content, createdBy} = req.body;
+
+    if (!subject || !content || !createdBy || !parentId) {
+        return res.status(400).json({ message: 'Subject, content, createdBy, and parentTicket are required' });
+    }
+    const user = await getUserById(createdBy);
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+    const parentTicketd = await getTicketById(parentId);
+    if (!parentTicketd) {
+        return res.status(404).json({ message: 'Parent ticket not found' });
+    }
+    try {
+        const ticket = await replyTicket(parentTicketd.roomId, subject, content, createdBy, parentId);
+        res.status(200).json({ ticket });
+    } catch (error) {
+        if (error.message.includes('User has not joined the room')) {
+            res.status(403).json({ message: error.message });
+        } else {
+            next(error);
+        }
+    }
+});
+
+
+
+
+/**
+ * @swagger
+ * /tickets/{id}/edit:
  *   put:
- *     summary: Update the ticket by the id
+ *     summary: Edit the ticket content by user id
  *     tags: [Tickets]
  *     parameters:
  *       - in: path
  *         name: id
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: The ticket id
  *     requestBody:
@@ -168,25 +305,117 @@ router.get('/:id', async (req, res, next) => {
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Ticket'
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: The new content of the ticket
+ *               editedBy:
+ *                 type: integer
+ *                 description: The id of the user editing the ticket
+ *             example:
+ *               content: The projector in room 101 has been fixed.
+ *               editedBy: 1
  *     responses:
  *       200:
- *         description: The ticket was updated
+ *         description: The ticket content was edited
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Ticket'
  *       404:
  *         description: The ticket was not found
+ *       403:
+ *         description: You are not authorized to edit this ticket
  *       500:
  *         description: Some error happened
  */
-router.put('/:id', async (req, res, next) => {
+
+router.put('/:id/edit', async (req, res, next) => {
     const { id } = req.params;
-    const { roomId, subject, content, isEdited, parentTicket, createdBy } = req.body;
+    const { content, editedBy } = req.body;
+
+    if (!content || !id || !editedBy) {
+        return res.status(400).json({ message: 'Required fields are missing' });
+    }
+    const user = await getUserById(editedBy);
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+    const ticket = await getTicketById(id);
+    if (!ticket) {
+        return res.status(404).json({ message: 'Ticket not found' });
+    }
+    if (ticket.createdBy !== editedBy) {
+        return res.status(403).json({ message: 'You are not authorized to edit this ticket' });
+    }
     try {
-        const ticket = await updateTicketById(id, roomId, subject, content, isEdited, parentTicket, createdBy);
-        res.json(ticket);
+        const ticket = await editTicketContent(id, content, editedBy);
+        res.status(200).json(ticket);
+    } catch (error) {
+        next(error);
+    }
+});
+
+
+
+
+/**
+ * @swagger
+ * /tickets/{id}:
+ *   delete:
+ *     summary: Remove the ticket by user  id
+ *     tags: [Tickets]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The ticket id
+ *       - in: query
+ *         name: deletedBy
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The id of the user deleting the ticket
+ *     responses:
+ *       200:
+ *         description: The ticket was deleted
+ *       400:
+ *          description: Bad request - missing fields
+ *       403:
+ *          description: You are not authorized to delete this ticket
+ *       404:
+ *         description: The ticket or User was not found
+ */
+
+router.delete('/:id', async (req, res, next) => {
+    const { id } = req.params;
+    const { deletedBy } = req.query;
+
+    if (!id || !deletedBy) {
+        return res.status(400).json({ message: 'Bad request, missing fields' });
+    }
+
+    const user = await getUserById(deletedBy);
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+    const ticket = await getTicketById(id);
+    if (!ticket) {
+        return res.status(404).json({ message: 'Ticket not found' });
+    }
+    console.log("------------")
+    console.log(ticket.createdBy)
+    console.log(deletedBy)
+    console.log("------------")
+    if (ticket.createdBy != deletedBy) {
+        return res.status(403).json({ message: 'You are not authorized to delete this ticket' });
+    }
+    try {
+        await deleteTicketById(id, deletedBy);
+        res.status(200).json({ message: 'Ticket deleted successfully' });
     } catch (error) {
         next(error);
     }
@@ -194,31 +423,69 @@ router.put('/:id', async (req, res, next) => {
 
 /**
  * @swagger
- * /tickets/{id}:
- *   delete:
- *     summary: Remove the ticket by id
+ * /tickets/{ticketId}/edits:
+ *   get:
+ *     summary: Get the edit history of a ticket
  *     tags: [Tickets]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: ticketId
  *         schema:
  *           type: string
  *         required: true
- *         description: The ticket id
+ *         description: The id of the ticket
  *     responses:
  *       200:
- *         description: The ticket was deleted
+ *         description: The edit history of the ticket
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     description: The id of the edit record
+ *                   ticketId:
+ *                     type: string
+ *                     description: The id of the ticket
+ *                   content:
+ *                     type: string
+ *                     description: The content of the ticket edit
+ *                   editedBy:
+ *                     type: string
+ *                     description: The id of the user who edited the ticket
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: The time when the edit was made
  *       404:
- *         description: The ticket was not found
+ *         description: Ticket not found
+ *       500:
+ *         description: Some server error
  */
-router.delete('/:id', async (req, res, next) => {
-    const { id } = req.params;
+router.get('/:ticketId/edits', async (req, res, next) => {
+    const { ticketId } = req.params;
+
+    if (!ticketId) {
+        return res.status(400).json({ message: 'Ticket ID is required' });
+    }
+
     try {
-        await deleteTicketById(id);
-        res.json({ message: 'Ticket deleted successfully' });
+        const ticket = await getTicketById(ticketId);
+        if (!ticket) {
+            return res.status(404).json({ message: 'Ticket not found' });
+        }
+
+        const edits = await ticketEditsHistory(ticketId);
+        res.status(200).json(edits);
     } catch (error) {
         next(error);
     }
 });
+
+
+
 
 module.exports = router;

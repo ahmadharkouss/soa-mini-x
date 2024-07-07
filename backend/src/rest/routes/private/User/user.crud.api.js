@@ -5,10 +5,11 @@ const { createUser, getUsers, getUserById, updateUserById, deleteUserById } = re
 
 const session = require('express-session');
 const bodyParser = require('body-parser');
+
+/*
 const Keycloak = require('keycloak-connect');
 
 const memoryStore = new session.MemoryStore();
-
 
 router.use(session({
     secret: 'thisShouldBeLongAndSecret',
@@ -18,10 +19,11 @@ router.use(session({
 }));
 
 const keycloak = new Keycloak({ store: memoryStore }, './src/configs/keycloak-config.json');
+router.use(keycloak.middleware());
+*/
+
 
 router.use(bodyParser.json());
-router.use(keycloak.middleware());
-
 // Middleware that is specific to this router
 const timeLog = (req, res, next) => {
     console.log('Time: ', Date.now());
@@ -45,9 +47,6 @@ router.use(timeLog);
  *         - name
  *         - alias
  *       properties:
- *         id:
- *           type: string
- *           description: The auto-generated id of the user
  *         name:
  *           type: string
  *           description: The name of the user
@@ -55,7 +54,6 @@ router.use(timeLog);
  *           type: string
  *           description: The alias of the user
  *       example:
- *         id: d5fE_asz
  *         name: John Doe
  *         alias: johnd
  */
@@ -91,7 +89,7 @@ router.use(timeLog);
  *       500:
  *         description: Some server error
  */
-router.post('/', keycloak.protect(), async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     const { name, alias } = req.body;
     try {
         if (!name || !alias) {
@@ -102,7 +100,7 @@ router.post('/', keycloak.protect(), async (req, res, next) => {
         // Exclude the updatedAt field from the returned user object
         const { updatedAt, ...userWithoutUpdatedAt } = user.toJSON ? user.toJSON() : user;
 
-        res.json(userWithoutUpdatedAt);
+        res.status(200).json(userWithoutUpdatedAt);
     } catch (error) {
         next(error);  // Pass the error to the error handling middleware
     }
@@ -126,9 +124,9 @@ router.post('/', keycloak.protect(), async (req, res, next) => {
  *               items:
  *                 $ref: '#/components/schemas/User'
  */
-router.get('/', keycloak.protect(), async (req, res) => {
+router.get('/', async (req, res) => {
     const users = await getUsers();
-    res.json(users);
+    res.status(200).json(users);
 });
 
 /**
@@ -156,11 +154,17 @@ router.get('/', keycloak.protect(), async (req, res) => {
  *       404:
  *         description: The user was not found
  */
-router.get('/:id', keycloak.protect(), async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
     const { id } = req.params;
+    if (!id) {
+        return res.status(400).json({ message: 'Bad request, missing fields' });
+    }
     try {
         const user = await getUserById(id);
-        res.json(user);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(user);
     } catch (error) {
         next(error);  // Pass the error to the error handling middleware
     }
@@ -199,12 +203,17 @@ router.get('/:id', keycloak.protect(), async (req, res, next) => {
  *       500:
  *         description: Some error happened
  */
-router.put('/:id', keycloak.protect(), async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
     const { id } = req.params;
     const { name, alias } = req.body;
+    if (!id)
+        return res.status(400).json({ message: 'Bad request, missing fields' });
+    if (!name || !alias) {
+        return res.status(400).json({ message: 'Name and alias are required' });
+    }
     try {
         const user = await updateUserById(id, name, alias);
-        res.json(user);
+        res.status(200).json(user);
     } catch (error) {
         next(error);  // Pass the error to the error handling middleware
     }
@@ -231,11 +240,14 @@ router.put('/:id', keycloak.protect(), async (req, res, next) => {
  *       404:
  *         description: The user was not found
  */
-router.delete('/:id', keycloak.protect(), async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
     const { id } = req.params;
+    if (!id) {
+        return res.status(400).json({ message: 'Bad request, missing fields' });
+    }
     try {
         await deleteUserById(id);
-        res.json({ message: 'User deleted successfully' });
+        res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
         next(error);  // Pass the error to the error handling middleware
     }

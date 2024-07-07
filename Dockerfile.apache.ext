@@ -57,4 +57,4 @@ RUN set -e; \
   for L in warn info debug; do echo "<IfDefine LOGLEVEL=$L>\n  LogLevel $L\n</IfDefine>" >> /usr/local/apache2/conf/loglevels.conf; done
 
 # Set default logging level to info
-CMD ["-DLOGLEVEL=debug"]
+CMD ["-DLOGLEVEL=info"]

@@ -13,9 +13,6 @@ services:
       - DB_PASSWORD=backend
       - DB_NAME=backend
     restart: always
-    networks:
-      - global-net
-      - keycloak-backend-net
 
   soa_postgres_db:
     image: postgres:16
@@ -29,8 +26,6 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
-    networks:
-      - global-net
 
   soa_redis:
     image: "redis:alpine"
@@ -41,11 +36,9 @@ services:
     expose:
       - "6379"
     restart: unless-stopped
-    networks:
-      - global-net
   
   soa_keycloak:
-    image: quay.io/keycloak/keycloak:25.0.1
+    image: quay.io/keycloak/keycloak
     container_name: soa_keycloak
     ports:
       - "8080:8080"
@@ -57,22 +50,16 @@ services:
       - --proxy-headers=xforwarded
       - --hostname-strict=false
       #- --optimized
-      #-  --log-level=DEBUG
       - --verbose
-    networks:
-      - global-net
-      - keycloak-backend-net
-    volumes:
-       - ./keycloak_backup/h2:/opt/keycloak/data/h2
 
     environment:
       KC_HOSTNAME: localhost # to be accessed from the host machine
       KC_HOSTNAME_PORT: 8080
       # Database configuration
-      #KC_DB: postgres
-      #KC_DB_URL: jdbc:postgresql://soa_keycloak_db/keycloak
-      #KC_DB_USERNAME: keycloak
-      #KC_DB_PASSWORD: keycloak  
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://soa_keycloak_db/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak  
       # Keycloak configuration
       KC_LOG_LEVEL: info
       KC_METRICS_ENABLED: true
@@ -83,28 +70,25 @@ services:
       # proxy mode
       #PROXY_ADDRESS_FORWARDING: true 
       #KC_PROXY: edge
-    #depends_on:
-      # -  soa_keycloak_db
+    depends_on:
+       -  soa_keycloak_db
     restart: unless-stopped
-   
 
 
-  #soa_keycloak_db:
+  soa_keycloak_db:
   # Do not expose this container port to the outside world for security reasons
- #   build:
-  #    context: .
-  #    dockerfile: Dockerfile.postgres
-  #  container_name: soa_keycloak_db
- #   environment:
-  #    POSTGRES_USER: keycloak
-  #    POSTGRES_PASSWORD: keycloak
-  #    POSTGRES_DB: keycloak
-  #  volumes:
- #       - ./keycloak_backup:/docker-entrypoint-initdb.d
- #
- #   restart: unless-stopped    
-  #  networks:
-  #    - global-net
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    container_name: soa_keycloak_db
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+      POSTGRES_DB: keycloak
+    volumes:
+        - ./keycloak_backup:/docker-entrypoint-initdb.d
+ 
+    restart: unless-stopped
 
 
   soa_apache:
@@ -118,8 +102,6 @@ services:
      - soa_backend
      - soa_keycloak
     restart: unless-stopped
-    networks:
-      - global-net
 
 #  nginx:
 #    build : ./nginx-configs
@@ -138,9 +120,3 @@ services:
 
 volumes:
   pgdata:
-
-networks:
-  global-net:
-    driver: bridge
-  keycloak-backend-net:
-    driver: bridge

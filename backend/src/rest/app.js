@@ -19,6 +19,8 @@ var privateUsersRouter = require('./routes/private/User/user.crud.api');
 var publicRouter = require('./routes/public/hello');
 var privateTicketRouter = require('./routes/private/Ticket/ticket.crud.api');
 var privateRoomRouter = require('./routes/private/Room/room.crud.api');
+var privateUserRoomRouter = require('./routes/private/user-room.api');
+var privateRoomAdminRouter = require('./routes/private/room-admin-api');
 
 
 var app = express();
@@ -45,6 +47,9 @@ app.use('/public/hello', publicRouter);
 app.use('/private/users', privateUsersRouter);
 app.use('/private/tickets', privateTicketRouter);
 app.use('/private/rooms',  privateRoomRouter);
+app.use('/private/rooms/', privateUserRoomRouter);
+app.use('/private/rooms/admin', privateRoomAdminRouter);
+
 
 
 const swaggerUi = require('swagger-ui-express');
@@ -80,8 +85,10 @@ const swaggerOptions = {
     ],	  
   },
   apis: ['./src/rest/routes/private/User/user.crud.api.js',
+    './src/rest/routes/private/Room/room.crud.api.js',
     './src/rest/routes/private/Ticket/ticket.crud.api.js',
-    './src/rest/routes/private/Room/room.crud.api.js'
+    './src/rest/routes/private/user-room.api.js',
+    './src/rest/routes/private/room-admin-api.js'
   ], // Path to the API docs
 };
 
@@ -115,7 +122,6 @@ const swaggerSpec2 = swaggerJsdoc(swaggerOptions2);
 // Separate middleware instances
 const privateSwaggerMiddleware = swaggerUi.setup(swaggerSpec);
 const publicSwaggerMiddleware = swaggerUi.setup(swaggerSpec2);
-app.set('trust proxy', true);
 app.use('/private/api-docs2', swaggerUi.serveFiles(swaggerSpec), privateSwaggerMiddleware);
 app.use('/public/api-docs', swaggerUi.serveFiles(swaggerSpec2), publicSwaggerMiddleware);
 // catch 404 and forward to error handler

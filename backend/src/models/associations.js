@@ -8,8 +8,8 @@ const {TicketEdits} = require('./Ticket/Ticket_Edits');
 // Define associations between models
 
 //many to many relationship between User and Room
-User.belongsToMany(Room, { through: UsersRoomsRoles });
-Room.belongsToMany(User, { through: UsersRoomsRoles });
+User.belongsToMany(Room, { through: UsersRoomsRoles, foreignKey: 'userId' });
+Room.belongsToMany(User, { through: UsersRoomsRoles, foreignKey: 'roomId' });
 
 //one to many relationship between Room and Ticket = room has many tickets
 Room.hasMany(Ticket, { foreignKey: 'roomId' });
