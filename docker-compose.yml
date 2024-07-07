@@ -15,6 +15,7 @@ services:
     restart: always
     networks:
       - global-net
+      - keycloak-backend-net
 
   soa_postgres_db:
     image: postgres:16
@@ -50,7 +51,7 @@ services:
       - "8080:8080"
     command: 
       - start-dev
-      #- --hostname=https://x.devgains.com/auth
+      - --hostname=https://x.devgains.com/auth
       - --proxy=edge
       #- --hostname-path=/auth
       - --proxy-headers=xforwarded
@@ -60,6 +61,7 @@ services:
       - --verbose
     networks:
       - global-net
+      - keycloak-backend-net
     volumes:
        - ./keycloak_backup/h2:/opt/keycloak/data/h2
 
@@ -139,4 +141,6 @@ volumes:
 
 networks:
   global-net:
+    driver: bridge
+  keycloak-backend-net:
     driver: bridge
