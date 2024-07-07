@@ -3,8 +3,12 @@
   "auth-server-url": "https://x.devgains.com/auth",
   "ssl-required": "external",
   "resource": "apache",
+  "verify-token-audience": true,
   "credentials": {
-    "secret": "Jm4Kt9ss7E9Kj9IARQRQrUOidP2B2Rx4"
+    "secret": "W7kT1jpJDRgyX9B2BvG6b932pIqeUr6x"
   },
-  "confidential-port": 0
+  "confidential-port": 0,
+  "policy-enforcer": {
+    "credentials": {}
+  }
 }
