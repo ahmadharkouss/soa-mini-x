@@ -114,7 +114,7 @@ router.post('/',keycloak.protect(), async (req, res, next) => {
         }
         const room = await createRoom(name, createdBy);
         const { updatedAt, ...roomWithoutUpdatedAt } = room.toJSON ? room.toJSON() : room;
-        res.status(200).json(roomWithoutUpdatedAt, { message: 'Room created successfully' });
+        res.status(200).json(roomWithoutUpdatedAt);
     } catch (error) {
         if (error.message.includes('User not found')) {
             res.status(404).json({ message: 'User not found' });
