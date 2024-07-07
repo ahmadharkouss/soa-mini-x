@@ -155,6 +155,14 @@ const ticketEditsHistory = async (ticketId) => {
         console.error(error);
     }
 }
+const getAllRepliesOfTicket = async (ticketId) => {
+    try {
+        const replies = await Ticket.findAll({ where: { parentTicket: ticketId } });
+        return replies;
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 module.exports = {
     createTicket,
@@ -164,5 +172,6 @@ module.exports = {
     deleteTicketById,
     editTicketContent,
     replyTicket,
-    ticketEditsHistory
+    ticketEditsHistory,
+    getAllRepliesOfTicket
 };

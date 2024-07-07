@@ -16,7 +16,7 @@ var privateIndexRouter = require('./routes/private/index');
 
 
 var privateUsersRouter = require('./routes/private/User/user.crud.api');
-var publicRouter = require('./routes/public/hello');
+var publicRouter = require('./routes/public/get');
 var privateTicketRouter = require('./routes/private/Ticket/ticket.crud.api');
 var privateRoomRouter = require('./routes/private/Room/room.crud.api');
 var privateUserRoomRouter = require('./routes/private/user-room.api');
@@ -41,7 +41,7 @@ app.use('/', indexRouter);
 app.use('/public', publicIndexRouter);
 app.use('/private', privateIndexRouter);
 
-app.use('/public/hello', publicRouter);
+app.use('/public/', publicRouter);
 
 
 app.use('/private/users', privateUsersRouter);
@@ -107,7 +107,7 @@ const swaggerOptions2 = {
       },
     ],
   },
-  apis: ['./src/rest/routes/public/hello.js'], // Path to the API docs
+  apis: ['./src/rest/routes/public/get.js'], // Path to the API docs
 };
 /*
 const swaggerSpec =swaggerJsdoc(swaggerOptions);

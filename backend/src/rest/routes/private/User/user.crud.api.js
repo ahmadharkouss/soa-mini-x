@@ -62,7 +62,7 @@ router.use(timeLog);
  * @swagger
  * tags:
  *   name: Users
- *   description: The user managing API
+ *   description: The user Transaction API
  */
 
 /**
@@ -101,70 +101,6 @@ router.post('/', async (req, res, next) => {
         const { updatedAt, ...userWithoutUpdatedAt } = user.toJSON ? user.toJSON() : user;
 
         res.status(200).json(userWithoutUpdatedAt);
-    } catch (error) {
-        next(error);  // Pass the error to the error handling middleware
-    }
-});
-
-/**
- * @swagger
- * /users:
- *   get:
- *     summary: Returns the list of all the users
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: The list of the users
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/User'
- */
-router.get('/', async (req, res) => {
-    const users = await getUsers();
-    res.status(200).json(users);
-});
-
-/**
- * @swagger
- * /users/{id}:
- *   get:
- *     summary: Get the user by id
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: The user id
- *     responses:
- *       200:
- *         description: The user description by id
- *         contents:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       404:
- *         description: The user was not found
- */
-router.get('/:id', async (req, res, next) => {
-    const { id } = req.params;
-    if (!id) {
-        return res.status(400).json({ message: 'Bad request, missing fields' });
-    }
-    try {
-        const user = await getUserById(id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json(user);
     } catch (error) {
         next(error);  // Pass the error to the error handling middleware
     }

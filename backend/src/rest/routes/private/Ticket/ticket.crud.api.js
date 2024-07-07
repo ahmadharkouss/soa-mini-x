@@ -90,7 +90,7 @@ router.use(timeLog);
  * @swagger
  * tags:
  *   name: Tickets
- *   description: The ticket managing API
+ *   description: The ticket Transactions API
  */
 
 
@@ -145,65 +145,7 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-/**
- * @swagger
- * /tickets:
- *   get:
- *     summary: Returns the list of all the tickets
- *     tags: [Tickets]
- *     responses:
- *       200:
- *         description: The list of the tickets
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Ticket'
- */
-router.get('/', async (req, res) => {
-    const tickets = await getTickets();
-    res.status(200).json(tickets);
-});
 
-/**
- * @swagger
- * /tickets/{id}:
- *   get:
- *     summary: Get the ticket by id
- *     tags: [Tickets]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: The ticket id
- *     responses:
- *        200:
- *          description: The ticket description by id
- *          content:
- *            application/json:
- *              schema:
- *                $ref: '#/components/schemas/Ticket'
- *        404:
- *          description: The ticket was not found
- */
-router.get('/:id', async (req, res, next) => {
-    const { id } = req.params;
-    if (!id) {
-        return res.status(400).json({ message: 'Bad request, missing fields' });
-    }
-    try {
-        const ticket = await getTicketById(id);
-        if (!ticket) {
-            return res.status(404).json({ message: 'Ticket not found' });
-        }
-        res.status(200).json(ticket);
-    } catch (error) {
-        next(error);
-    }
-});
 
 
 /**
@@ -420,72 +362,6 @@ router.delete('/:id', async (req, res, next) => {
         next(error);
     }
 });
-
-/**
- * @swagger
- * /tickets/{ticketId}/edits:
- *   get:
- *     summary: Get the edit history of a ticket
- *     tags: [Tickets]
- *     parameters:
- *       - in: path
- *         name: ticketId
- *         schema:
- *           type: string
- *         required: true
- *         description: The id of the ticket
- *     responses:
- *       200:
- *         description: The edit history of the ticket
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: string
- *                     description: The id of the edit record
- *                   ticketId:
- *                     type: string
- *                     description: The id of the ticket
- *                   content:
- *                     type: string
- *                     description: The content of the ticket edit
- *                   editedBy:
- *                     type: string
- *                     description: The id of the user who edited the ticket
- *                   createdAt:
- *                     type: string
- *                     format: date-time
- *                     description: The time when the edit was made
- *       404:
- *         description: Ticket not found
- *       500:
- *         description: Some server error
- */
-router.get('/:ticketId/edits', async (req, res, next) => {
-    const { ticketId } = req.params;
-
-    if (!ticketId) {
-        return res.status(400).json({ message: 'Ticket ID is required' });
-    }
-
-    try {
-        const ticket = await getTicketById(ticketId);
-        if (!ticket) {
-            return res.status(404).json({ message: 'Ticket not found' });
-        }
-
-        const edits = await ticketEditsHistory(ticketId);
-        res.status(200).json(edits);
-    } catch (error) {
-        next(error);
-    }
-});
-
-
 
 
 module.exports = router;
