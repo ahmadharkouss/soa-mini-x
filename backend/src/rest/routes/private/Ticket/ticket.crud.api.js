@@ -5,6 +5,7 @@ const { createTicket, getTickets, getTicketById, updateTicketById, deleteTicketB
  } = require('../../../../services/Ticket/ticket.crud.service');
 const {getUserById} = require('../../../../services/User/user.crud.service');
 const {getRoomById} = require('../../../../services/Room/room.crud.service');
+const {logUserActivity}= require('../../../../redis/plugins/activity-logs.publisher')
 // Middleware that is specific to this router
 const timeLog = (req, res, next) => {
     console.log('Time: ', Date.now());
@@ -138,6 +139,11 @@ router.post('/', async (req, res, next) => {
         }
         const ticket = await createTicket(roomId, subject, content, createdBy);
         const {updatedAt, ...ticketWithoutUpdatedAt} = ticket.toJSON ? ticket.toJSON() : ticket;
+
+        logUserActivity(createdBy, `Ticket created in room ${roomId} with subject ${subject} and content ${content}`).catch(
+            (error) => { console.log(error) }
+        )
+
         res.status(200).json(ticketWithoutUpdatedAt);
     } catch (error) {
            return res.status(403).json({ message: error.message });
@@ -216,6 +222,9 @@ router.post('/:parentId/reply', async (req, res, next) => {
     }
     try {
         const ticket = await replyTicket(parentTicketd.roomId, subject, content, createdBy, parentId);
+        logUserActivity(createdBy, `Ticket replied in room ${parentTicketd.roomId} with subject ${subject} and content ${content}`).catch(
+            (error) => { console.log(error) }
+        );
         res.status(200).json({ ticket });
     } catch (error) {
         if (error.message.includes('User has not joined the room')) {
@@ -293,6 +302,9 @@ router.put('/:id/edit', async (req, res, next) => {
     }
     try {
         const ticket = await editTicketContent(id, content, editedBy);
+        logUserActivity(editedBy, `Ticket edited in room ${ticket.roomId} with subject ${ticket.subject} and content ${content}`).catch(
+            (error) => { console.log(error) }
+        );
         res.status(200).json(ticket);
     } catch (error) {
         next(error);
@@ -348,15 +360,14 @@ router.delete('/:id', async (req, res, next) => {
     if (!ticket) {
         return res.status(404).json({ message: 'Ticket not found' });
     }
-    console.log("------------")
-    console.log(ticket.createdBy)
-    console.log(deletedBy)
-    console.log("------------")
     if (ticket.createdBy != deletedBy) {
         return res.status(403).json({ message: 'You are not authorized to delete this ticket' });
     }
     try {
         await deleteTicketById(id, deletedBy);
+        logUserActivity(deletedBy, `Ticket deleted in room ${ticket.roomId} with subject ${ticket.subject} and content ${ticket.content}`).catch(
+            (error) => { console.log(error) }
+        );
         res.status(200).json({ message: 'Ticket deleted successfully' });
     } catch (error) {
         next(error);

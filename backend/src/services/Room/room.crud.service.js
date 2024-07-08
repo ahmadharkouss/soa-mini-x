@@ -5,6 +5,11 @@ const { UsersRoomsRoles } = require('../../models/Room-User/Users_Rooms_Roles');
 
 const {getUserById} = require('../User/user.crud.service');
 
+
+const {logUserActivity}= require('.././../redis/plugins/activity-logs.publisher')
+
+//const {logUserActivity} = require('../../redis/plugins/activity-logs.publisher');
+
 //create a new room
 
 const createRoom = async (name, createdBy) => {
@@ -31,6 +36,8 @@ const createRoom = async (name, createdBy) => {
         }, { transaction });
 
         await transaction.commit();
+        // Log the user activity
+        //logUserActivity(createdBy, `created room ${room.name}`);
         return room;
     } catch (error) {
         await transaction.rollback();

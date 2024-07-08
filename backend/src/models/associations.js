@@ -3,6 +3,7 @@ const {Room} = require('./Room-User/Room');
 const {UsersRoomsRoles} = require('./Room-User/Users_Rooms_Roles');
 const {Ticket} = require('./Ticket/Ticket');
 const {TicketEdits} = require('./Ticket/Ticket_Edits');
+const {Logs} = require('./logs');
 
 
 // Define associations between models
@@ -24,3 +25,8 @@ User.hasMany(Ticket, { foreignKey: {allowNull: false, name: 'createdBy'}});
 Ticket.belongsTo(User, { foreignKey: {allowNull: false, name: 'createdBy'} });
 
 //Ticket.hasMany(Ticket, { foreignKey: 'parent_Ticket', as: 'replies' });
+
+
+//one to many relationship between User and Logs = user has many logs
+User.hasMany(Logs, { foreignKey: 'userId' });
+Logs.belongsTo(User, { foreignKey: 'userId' });

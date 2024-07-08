@@ -10,6 +10,7 @@ const {kickUserFromRoom,
 
 const {getUserById} = require('../../../services/User/user.crud.service');
 const {getRoomById} = require('../../../services/Room/room.crud.service');
+const {logUserActivity}= require('../../../redis/plugins/activity-logs.publisher')
 
 
 
@@ -72,6 +73,9 @@ router.post('/kick', async (req, res, next) => {
     }
     try {
         const response = await kickUserFromRoom(adminId, userId, roomId);
+        logUserActivity(adminId, `Kicked user ${userId} from room ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json(response);
     } catch (error) {
         if (error.message.includes('User is not an admin of the room') || error.message.includes('User is not in the room')) {
@@ -152,6 +156,9 @@ router.post('/assign-role', async (req, res, next) => {
     }
     try {
         const response = await assignRole(adminId, userId, roomId, role);
+        logUserActivity(adminId, `Assigned role ${role} to user ${userId} in room ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json(response);
     } catch (error) {
         if (error.message.includes('Only admins')) {
@@ -236,6 +243,9 @@ router.put('/:roomId/update', async (req, res, next) => {
         }
 
         const room = await updateRoomByAdmin(userId, roomId, name);
+        logUserActivity(userId, `Updated room name of ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json(room);
     } catch (error) {
         if (error.message.includes('User is not an admin of the room')) {
@@ -308,6 +318,9 @@ router.delete('/:roomId/:userId', async (req, res, next) => {
         }
         // Attempt to delete the room by admin
         const room = await deleteRoomByIdByAdmin(userId, roomId);
+        logUserActivity(userId, `Deleted room ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json({ message: 'Room deleted successfully' });
     } catch (error) {
         //CHECK IF error message is not empty

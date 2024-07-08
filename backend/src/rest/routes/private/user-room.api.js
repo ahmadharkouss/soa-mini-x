@@ -4,6 +4,7 @@ const router = express.Router();
 const { joinRoom, leaveRoom, kickUserFromRoom,  getAllUserRoomRoles, 
     getUserRoomRoleByIds, assignRole,getUsersInRoom 
   } = require('../../../services/user-room.service');
+const {logUserActivity}= require('../../../redis/plugins/activity-logs.publisher')
 /**
  * @swagger
  * tags:
@@ -55,6 +56,9 @@ router.post('/join', async (req, res, next) => {
 
     try {
         const response = await joinRoom(userId, roomId);
+        logUserActivity(userId, `Joined room ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json(response);
     } catch (error) {
         if (error.message.includes('User or Room not found')) {
@@ -109,6 +113,9 @@ router.post('/leave', async (req, res, next) => {
     }
     try {
         const response = await leaveRoom(userId, roomId);
+        logUserActivity(userId, `Left room ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json(response);
     } catch (error) {
         if (error.message.includes('User or Room not found')) {

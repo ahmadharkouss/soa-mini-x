@@ -48,6 +48,9 @@ const updateUserById = async (id, name, alias) => {
 
     try {
         const user = await User.findByPk(id);
+        if (!user) {
+            throw new Error('User not found');
+        }
         user.name = name;
         user.alias = alias;
         await user.save();
@@ -66,6 +69,9 @@ const deleteUserById = async (id) => {
 
     try {
         const user = await User.findByPk(id);
+        if (!user) {
+            throw new Error('User not found');
+        }
         await user.destroy();
         return user;
     } catch (error) {
