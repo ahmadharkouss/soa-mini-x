@@ -98,7 +98,6 @@ The PostgreSQL dump file of Keycloak and `restoration.sh` script to restore the 
 
 ## Backend Source Code
 
--Configuration Files
 
 ### `backend/src/configs`
 
