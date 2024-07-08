@@ -20,7 +20,7 @@ In Order to Interact directly with apis, you need to follow the production serve
 ## Public API
 
 - **URL**:
-  - [https://x.devgains.com/public](https://https://x.devgains.com/public)
+  - [https://x.devgains.com/public](https://x.devgains.com/public)
 
 
 
@@ -49,6 +49,6 @@ In Order to Interact directly with apis, you need to follow the production serve
 
 - **URL**:
   - [http://localhost/public](http://localhost/public)
-  - [https://x.devgains.com/public](https://https://x.devgains.com/public) (you need to change the hosts file on your machine,  if you want to test locally)
+  - [https://x.devgains.com/public](https://x.devgains.com/public) (you need to change the hosts file on your machine,  if you want to test locally)
 
 - You will be prompted to a Swagger doc where you can test the APIs.
