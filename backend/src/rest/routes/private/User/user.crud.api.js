@@ -102,10 +102,7 @@ router.post('/', async (req, res, next) => {
         logUserActivity(userWithoutUpdatedAt.id, 'User created by dev').catch((error) => {
             console.error('Failed to log user activity:', error);
         });
-        res.status(200).json(userWithoutUpdatedAt).catch((error) => {
-            console.error('Failed to log user activity:', error);
-        }
-        );
+        res.status(200).json(userWithoutUpdatedAt);
     } catch (error) {
         next(error);  // Pass the error to the error handling middleware
     }

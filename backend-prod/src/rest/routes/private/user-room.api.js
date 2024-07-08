@@ -5,7 +5,7 @@ const { joinRoom, leaveRoom, kickUserFromRoom,  getAllUserRoomRoles,
     getUserRoomRoleByIds, assignRole,getUsersInRoom 
   } = require('../../../services/user-room.service');
 
-
+const {logUserActivity}= require('../../../redis/plugins/activity-logs.publisher');
 const { keycloakMiddleware, keycloak } = require('../../../middleware/keycloack.middleware');
 keycloakMiddleware(router);
 

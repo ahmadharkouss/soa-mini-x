@@ -22,8 +22,8 @@ subscribeToActivityLogs();
 const {sequelize} = require('../../utilities/connectDb');
 require('../../models/associations');
 // Synchronize models with the database
-sequelize.sync({force : true});
-//sequelize.sync();
+//sequelize.sync({force : true});
+sequelize.sync();
 
 /**
  * Get port from environment and store in Express.

@@ -14,7 +14,7 @@ const {getRoomById} = require('../../../services/Room/room.crud.service');
 const { keycloakMiddleware, keycloak } = require('../../../middleware/keycloack.middleware');
 keycloakMiddleware(router);
 
-
+const {logUserActivity}= require('../../../redis/plugins/activity-logs.publisher');
 
 /**
  * @swagger

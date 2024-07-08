@@ -7,7 +7,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 
 
-
+const {logUserActivity}= require('../../../../redis/plugins/activity-logs.publisher');
 const { keycloakMiddleware , keycloak } = require('../../../../middleware/keycloack.middleware');
 keycloakMiddleware(router);
 
@@ -90,10 +90,7 @@ router.post('/',keycloak.protect(), async (req, res, next) => {
         logUserActivity(userWithoutUpdatedAt.id, 'User created by dev').catch((error) => {
             console.error('Failed to log user activity:', error);
         });
-        res.status(200).json(userWithoutUpdatedAt).catch((error) => {
-            console.error('Failed to log user activity:', error);
-        }
-        );
+        res.status(200).json(userWithoutUpdatedAt);
     } catch (error) {
         next(error);  // Pass the error to the error handling middleware
     }

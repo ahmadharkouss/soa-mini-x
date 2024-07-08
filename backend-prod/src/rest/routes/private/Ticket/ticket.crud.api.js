@@ -13,7 +13,7 @@ const timeLog = (req, res, next) => {
 router.use(timeLog);
 const { keycloakMiddleware, keycloak } = require('../../../../middleware/keycloack.middleware');
 keycloakMiddleware(router);
-
+const {logUserActivity}= require('../../../../redis/plugins/activity-logs.publisher');
 
 /**
  * @swagger

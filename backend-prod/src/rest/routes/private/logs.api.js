@@ -4,7 +4,7 @@ const { getLogs, getLogsByUserId } = require('../../../services/logs.services');
 
 const { keycloakMiddleware, keycloak } = require('../../../middleware/keycloack.middleware');
 keycloakMiddleware(router);
-
+const {logUserActivity}= require('../../../redis/plugins/activity-logs.publisher');
 /**
  * @swagger
  * tags:
