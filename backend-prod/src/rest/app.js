@@ -22,6 +22,8 @@ var privateRoomRouter = require('./routes/private/Room/room.crud.api');
 var privateUserRoomRouter = require('./routes/private/user-room.api');
 var privateRoomAdminRouter = require('./routes/private/room-admin-api');
 
+var privateRedisLogPlugin  = require('./routes/private/logs.api');
+
 
 var app = express();
 
@@ -49,6 +51,7 @@ app.use('/private/tickets', privateTicketRouter);
 app.use('/private/rooms',  privateRoomRouter);
 app.use('/private/rooms/', privateUserRoomRouter);
 app.use('/private/rooms/admin', privateRoomAdminRouter);
+app.use('/private/plugin/logs', privateRedisLogPlugin);
 
 
 
@@ -74,7 +77,8 @@ const swaggerOptions = {
     './src/rest/routes/private/Room/room.crud.api.js',
     './src/rest/routes/private/Ticket/ticket.crud.api.js',
     './src/rest/routes/private/user-room.api.js',
-    './src/rest/routes/private/room-admin-api.js'
+    './src/rest/routes/private/room-admin-api.js',
+    './src/rest/routes/private/logs.api.js'
   ], // Path to the API docs
 };
 

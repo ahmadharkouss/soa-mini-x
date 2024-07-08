@@ -6,6 +6,7 @@ const { createRoom, getRooms, getRoomById,
 const { getUsersInRoom 
   } = require('../../../../services/user-room.service');
 
+  const {logUserActivity}= require('../../../../redis/plugins/activity-logs.publisher')
 // Middleware that is specific to this router
 const timeLog = (req, res, next) => {
     console.log('Time: ', Date.now());
@@ -104,7 +105,6 @@ keycloakMiddleware(router);
  *       500:
  *         description: Some server error
  */
-
 router.post('/',keycloak.protect(), async (req, res, next) => {
     const { name, createdBy } = req.body;
 
@@ -114,6 +114,10 @@ router.post('/',keycloak.protect(), async (req, res, next) => {
         }
         const room = await createRoom(name, createdBy);
         const { updatedAt, ...roomWithoutUpdatedAt } = room.toJSON ? room.toJSON() : room;
+        // Log user activity asynchronously, without affecting the response
+        logUserActivity(createdBy, `Created room ${room.name}`).catch(err => {
+            console.error('Failed to log user activity:', err);
+        })
         res.status(200).json(roomWithoutUpdatedAt);
     } catch (error) {
         if (error.message.includes('User not found')) {

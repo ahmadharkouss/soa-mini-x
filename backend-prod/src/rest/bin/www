@@ -10,6 +10,10 @@ var http = require('http');
 
 app.set('trust proxy', true);
 
+const {subscribeToActivityLogs} = require('../../redis/plugins/activity-logs.subscriber')
+
+// Initialize the subscriber to start listening to activity logs
+subscribeToActivityLogs();
 
 /**
  * sequelize
@@ -18,8 +22,8 @@ app.set('trust proxy', true);
 const {sequelize} = require('../../utilities/connectDb');
 require('../../models/associations');
 // Synchronize models with the database
-//sequelize.sync({force : true});
-sequelize.sync();
+sequelize.sync({force : true});
+//sequelize.sync();
 
 /**
  * Get port from environment and store in Express.

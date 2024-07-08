@@ -137,7 +137,7 @@ keycloakMiddleware(router);
  *       500:
  *         description: Some server error
  */
-router.post('/', keycloak.protect(),async (req, res, next) => {
+router.post('/',keycloak.protect(), async (req, res, next) => {
     const { roomId, subject, content, createdBy } = req.body;
     try {
         if (!roomId || !subject || !content || !createdBy) {
@@ -153,6 +153,11 @@ router.post('/', keycloak.protect(),async (req, res, next) => {
         }
         const ticket = await createTicket(roomId, subject, content, createdBy);
         const {updatedAt, ...ticketWithoutUpdatedAt} = ticket.toJSON ? ticket.toJSON() : ticket;
+
+        logUserActivity(createdBy, `Ticket created in room ${roomId} with subject ${subject} and content ${content}`).catch(
+            (error) => { console.log(error) }
+        )
+
         res.status(200).json(ticketWithoutUpdatedAt);
     } catch (error) {
            return res.status(403).json({ message: error.message });
@@ -233,6 +238,9 @@ router.post('/:parentId/reply',keycloak.protect(), async (req, res, next) => {
     }
     try {
         const ticket = await replyTicket(parentTicketd.roomId, subject, content, createdBy, parentId);
+        logUserActivity(createdBy, `Ticket replied in room ${parentTicketd.roomId} with subject ${subject} and content ${content}`).catch(
+            (error) => { console.log(error) }
+        );
         res.status(200).json({ ticket });
     } catch (error) {
         if (error.message.includes('User has not joined the room')) {
@@ -242,6 +250,7 @@ router.post('/:parentId/reply',keycloak.protect(), async (req, res, next) => {
         }
     }
 });
+
 
 
 
@@ -292,7 +301,7 @@ router.post('/:parentId/reply',keycloak.protect(), async (req, res, next) => {
  *         description: Some error happened
  */
 
-router.put('/:id/edit',keycloak.protect(),async (req, res, next) => {
+router.put('/:id/edit',keycloak.protect(), async (req, res, next) => {
     const { id } = req.params;
     const { content, editedBy } = req.body;
 
@@ -312,6 +321,9 @@ router.put('/:id/edit',keycloak.protect(),async (req, res, next) => {
     }
     try {
         const ticket = await editTicketContent(id, content, editedBy);
+        logUserActivity(editedBy, `Ticket edited in room ${ticket.roomId} with subject ${ticket.subject} and content ${content}`).catch(
+            (error) => { console.log(error) }
+        );
         res.status(200).json(ticket);
     } catch (error) {
         next(error);
@@ -369,20 +381,18 @@ router.delete('/:id',keycloak.protect(),async (req, res, next) => {
     if (!ticket) {
         return res.status(404).json({ message: 'Ticket not found' });
     }
-    console.log("------------")
-    console.log(ticket.createdBy)
-    console.log(deletedBy)
-    console.log("------------")
     if (ticket.createdBy != deletedBy) {
         return res.status(403).json({ message: 'You are not authorized to delete this ticket' });
     }
     try {
         await deleteTicketById(id, deletedBy);
+        logUserActivity(deletedBy, `Ticket deleted in room ${ticket.roomId} with subject ${ticket.subject} and content ${ticket.content}`).catch(
+            (error) => { console.log(error) }
+        );
         res.status(200).json({ message: 'Ticket deleted successfully' });
     } catch (error) {
         next(error);
     }
 });
-
 
 module.exports = router;

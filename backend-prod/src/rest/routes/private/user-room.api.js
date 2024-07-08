@@ -62,6 +62,9 @@ router.post('/join',keycloak.protect(), async (req, res, next) => {
 
     try {
         const response = await joinRoom(userId, roomId);
+        logUserActivity(userId, `Joined room ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json(response);
     } catch (error) {
         if (error.message.includes('User or Room not found')) {
@@ -118,6 +121,9 @@ router.post('/leave',keycloak.protect(), async (req, res, next) => {
     }
     try {
         const response = await leaveRoom(userId, roomId);
+        logUserActivity(userId, `Left room ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json(response);
     } catch (error) {
         if (error.message.includes('User or Room not found')) {
@@ -129,10 +135,6 @@ router.post('/leave',keycloak.protect(), async (req, res, next) => {
         next(error);
     }
 });
-
-
-
-
 
 
 

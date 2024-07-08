@@ -69,13 +69,16 @@ keycloakMiddleware(router);
  *       500:
  *         description: Server error
  */
-router.post('/kick', keycloak.protect(),async (req, res, next) => {
+router.post('/kick',keycloak.protect(), async (req, res, next) => {
     const { adminId, userId, roomId } = req.body;
     if (!adminId || !userId || !roomId) {
         return res.status(400).json({ message: 'Required fields are missing' });
     }
     try {
         const response = await kickUserFromRoom(adminId, userId, roomId);
+        logUserActivity(adminId, `Kicked user ${userId} from room ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json(response);
     } catch (error) {
         if (error.message.includes('User is not an admin of the room') || error.message.includes('User is not in the room')) {
@@ -139,7 +142,7 @@ router.post('/kick', keycloak.protect(),async (req, res, next) => {
  *       500:
  *         description: Server error
  */
-router.post('/assign-role', keycloak.protect(),async (req, res, next) => {
+router.post('/assign-role',keycloak.protect(),  async (req, res, next) => {
     const { adminId, userId, roomId, role } = req.body;
     if (!adminId || !userId || !roomId || !role) {
         return res.status(400).json({ message: 'Required fields are missing' });
@@ -158,6 +161,9 @@ router.post('/assign-role', keycloak.protect(),async (req, res, next) => {
     }
     try {
         const response = await assignRole(adminId, userId, roomId, role);
+        logUserActivity(adminId, `Assigned role ${role} to user ${userId} in room ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json(response);
     } catch (error) {
         if (error.message.includes('Only admins')) {
@@ -167,6 +173,7 @@ router.post('/assign-role', keycloak.protect(),async (req, res, next) => {
         }
     }
 });
+
 
 
 
@@ -224,7 +231,7 @@ router.post('/assign-role', keycloak.protect(),async (req, res, next) => {
  *       500:
  *         description: Some server error
  */
-router.put('/:roomId/update',keycloak.protect(), async (req, res, next) => {
+router.put('/:roomId/update',keycloak.protect(),  async (req, res, next) => {
     const { roomId } = req.params;
     const { userId, name } = req.body;
     try {
@@ -244,6 +251,9 @@ router.put('/:roomId/update',keycloak.protect(), async (req, res, next) => {
         }
 
         const room = await updateRoomByAdmin(userId, roomId, name);
+        logUserActivity(userId, `Updated room name of ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json(room);
     } catch (error) {
         if (error.message.includes('User is not an admin of the room')) {
@@ -297,7 +307,7 @@ router.put('/:roomId/update',keycloak.protect(), async (req, res, next) => {
  *       500:
  *         description: Server error
  */
-router.delete('/:roomId/:userId',keycloak.protect(), async (req, res, next) => {
+router.delete('/:roomId/:userId',keycloak.protect(),  async (req, res, next) => {
     const { roomId, userId } = req.params;
 
     try {
@@ -318,6 +328,9 @@ router.delete('/:roomId/:userId',keycloak.protect(), async (req, res, next) => {
         }
         // Attempt to delete the room by admin
         const room = await deleteRoomByIdByAdmin(userId, roomId);
+        logUserActivity(userId, `Deleted room ${roomId}`).catch((error) => {
+            console.error('Failed to log user activity:', error);
+        });
         res.status(200).json({ message: 'Room deleted successfully' });
     } catch (error) {
         //CHECK IF error message is not empty
@@ -328,6 +341,7 @@ router.delete('/:roomId/:userId',keycloak.protect(), async (req, res, next) => {
         }
     }
 });
+
 
 
 
