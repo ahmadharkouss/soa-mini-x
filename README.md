@@ -1,6 +1,6 @@
 # API Documentation
 
-The purpose of this project is to provide a production ready environment for the backend of a web app  of social-plateform, like Twiter.
+The purpose of this project is to provide a production-ready environment for the backend of a social platform web app, similar to Twitter.
 
 All API URLs are on HTTPS with valid certificate!
 
