@@ -96,7 +96,9 @@ The PostgreSQL dump file of Keycloak and `restoration.sh` script to restore the 
 - `Docker.apache.ext`: Custom image for Apache.
 - `Docker.postgres`: Custom image for PostgreSQL for Keycloak.
 
-## Configuration Files
+## Backend Source Code
+
+-Configuration Files
 
 ### `backend/src/configs`
 
@@ -122,13 +124,6 @@ Contains the database connection utilities.
 
 Contains all the private and public endpoints.
 
-## Docker Setup
-
-### `Dockerfile`
-
-Used to build the Node.js application.
-
-## Backend Source Code
 
 ### `backend/src/www/bin`
 
@@ -141,3 +136,11 @@ Contains all the imported routes and Swagger setup.
 ### `backend/src/views`
 
 Contains all the frontend views built with Jade.
+
+## Docker Setup
+
+### `Dockerfile`
+
+Used to build the Node.js application.
+
+
