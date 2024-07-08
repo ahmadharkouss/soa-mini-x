@@ -25,7 +25,7 @@ In Order to Interact directly with apis, you need to follow the production serve
 
 
 
-# dev: test locally
+# Dev: test locally
 
 ## Run 
 
