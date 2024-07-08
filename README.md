@@ -1,6 +1,6 @@
 # API Documentation
 
-The purpose of this project is to provide a production ready environment for the backend of a web app.
+The purpose of this project is to provide a production ready environment for the backend of a web app  of social-plateform, like Twiter.
 
 All API URLs are on HTTPS with valid certificate!
 
@@ -52,3 +52,92 @@ In Order to Interact directly with apis, you need to follow the production serve
   - [https://x.devgains.com/public](https://x.devgains.com/public) (you need to change the hosts file on your machine,  if you want to test locally)
 
 - You will be prompted to a Swagger doc where you can test the APIs.
+
+
+# Project Documentation
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Folder Structure](#folder-structure)
+- [Configuration Files](#configuration-files)
+- [Docker Setup](#docker-setup)
+- [Backend Source Code](#backend-source-code)
+
+## Overview
+
+This project is structured to manage a web application with an Apache server, a Node.js backend, and integration with Keycloak for authentication. It includes configuration files, Docker setups, and source code organized for both development and production environments.
+
+## Folder Structure
+
+### apache-config
+
+Contains configuration files for the Apache server and the website.
+
+### backend
+
+Source code in Node.js for the APIs.
+
+### backend-prod
+
+Similar to the `backend` folder but with Keycloak middleware added for production.
+
+### certs
+
+Contains the certificate keys for the website.
+
+### keycloak_back
+
+The PostgreSQL dump file of Keycloak and `restoration.sh` script to restore the database.
+
+### Docker Configuration Files
+
+- `docker-compose.yml`: Contains configuration for all containers.
+- `Docker.apache.ext`: Custom image for Apache.
+- `Docker.postgres`: Custom image for PostgreSQL for Keycloak.
+
+## Configuration Files
+
+### `backend/src/configs`
+
+Contains configuration files for Swagger documentation and Keycloak middleware.
+
+### `backend/src/models`
+
+Contains all ORM models.
+
+### `backend/src/services`
+
+Contains all services that interact with the Models.
+
+### `backend/src/redis`
+
+Contains the Redis publisher and subscriber for logs.
+
+### `backend/src/utilities`
+
+Contains the database connection utilities.
+
+### `backend/src/rest`
+
+Contains all the private and public endpoints.
+
+## Docker Setup
+
+### `Dockerfile`
+
+Used to build the Node.js application.
+
+## Backend Source Code
+
+### `backend/src/www/bin`
+
+Contains the HTTP server that launches the application.
+
+### `backend/src/app.js`
+
+Contains all the imported routes and Swagger setup.
+
+### `backend/src/views`
+
+Contains all the frontend views built with Jade.
