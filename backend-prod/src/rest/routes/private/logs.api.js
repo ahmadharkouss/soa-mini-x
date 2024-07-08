@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { getLogs, getLogsByUserId } = require('../../../services/logs.services');
 
+const { keycloakMiddleware, keycloak } = require('../../../middleware/keycloack.middleware');
+keycloakMiddleware(router);
+
 /**
  * @swagger
  * tags:
@@ -15,6 +18,8 @@ const { getLogs, getLogsByUserId } = require('../../../services/logs.services');
  *   get:
  *     summary: Get all logs
  *     tags: [Logs]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of all logs
@@ -34,7 +39,7 @@ const { getLogs, getLogsByUserId } = require('../../../services/logs.services');
  *       500:
  *         description: Server error
  */
-router.get('/', async (req, res, next) => {
+router.get('/',keycloak.protect(), async (req, res, next) => {
     try {
         const logs = await getLogs();
         res.status(200).json(logs);
@@ -49,6 +54,8 @@ router.get('/', async (req, res, next) => {
  *   get:
  *     summary: Get logs by user ID
  *     tags: [Logs]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: userId
@@ -77,7 +84,7 @@ router.get('/', async (req, res, next) => {
  *       500:
  *         description: Server error
  */
-router.get('/:userId', async (req, res, next) => {
+router.get('/:userId',keycloak.protect(), async (req, res, next) => {
     const { userId } = req.params;
     try {
         const logs = await getLogsByUserId(userId);

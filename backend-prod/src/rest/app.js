@@ -112,7 +112,7 @@ const swaggerSpec2 = swaggerJsdoc(swaggerOptions2);
 // Separate middleware instances
 const privateSwaggerMiddleware = swaggerUi.setup(swaggerSpec);
 const publicSwaggerMiddleware = swaggerUi.setup(swaggerSpec2);
-app.use('/private/api-docs2', swaggerUi.serveFiles(swaggerSpec), privateSwaggerMiddleware);
+app.use('/private/api-docs', swaggerUi.serveFiles(swaggerSpec), privateSwaggerMiddleware);
 app.use('/public/api-docs', swaggerUi.serveFiles(swaggerSpec2), publicSwaggerMiddleware);
 // catch 404 and forward to error handler
 /*
