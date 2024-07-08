@@ -64,6 +64,12 @@ In Order to Interact directly with apis, you need to follow the production serve
 - [Docker Setup](#docker-setup)
 - [Backend Source Code](#backend-source-code)
 
+
+
+![Project mld](mld.png)
+
+![Project infra](infra.png)
+
 ## Overview
 
 This project is structured to manage a web application with an Apache server, a Node.js backend, and integration with Keycloak for authentication. It includes configuration files, Docker setups, and source code organized for both development and production environments.
