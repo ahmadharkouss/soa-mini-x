@@ -4,7 +4,7 @@ The purpose of this project is to provide a production ready environment for the
 
 All API URLs are on HTTPS with valid certificate!
 
-# Pro
+# Prod
 
 In Order to Interact directly with apis, you need to follow the production server link at [https://x.devgains.com](https://x.devgains.com).
 
